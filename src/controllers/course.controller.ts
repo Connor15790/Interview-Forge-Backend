@@ -1,11 +1,11 @@
-import { Request, Response } from "express";
+import { Response } from "express";
 
-import { verifyToken, AuthRequest } from "../middleware/verifyToken";
+import { AuthRequest } from "../middleware/verifyToken";
 
 import Course from "../models/Course";
 
 // Fetch all public courses
-export const fetchCourses = async (res: Response) => {
+export const fetchCourses = async (req: AuthRequest, res: Response) => {
   try {
     const courses = await Course.find({ isPublic: true })
       .populate("createdBy", "name image")
@@ -14,7 +14,7 @@ export const fetchCourses = async (res: Response) => {
     return res.status(200).json(courses);
   } catch (error) {
     console.log(error);
-    res.status(500).json({ message: "Internal server error!" });
+    return res.status(500).json({ message: "Internal server error!" });
   }
 };
 
@@ -28,7 +28,7 @@ export const fetchMyCourses = async (req: AuthRequest, res: Response) => {
     return res.status(200).json(courses);
   } catch (error) {
     console.log(error);
-    res.status(500).json({ message: "Internal server error!" });
+    return res.status(500).json({ message: "Internal server error!" });
   }
 };
 
@@ -127,7 +127,7 @@ export const makePrivateCourse = async (req: AuthRequest, res: Response) => {
       return res.status(404).json({ message: "Course not found!" });
     }
 
-    if (course?.createdBy.toString() !== req.params.id) {
+    if (course?.createdBy.toString() !== req.user?._id) {
       return res
         .status(404)
         .json({ message: "This course belongs to another user!" });

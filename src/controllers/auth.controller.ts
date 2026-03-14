@@ -3,8 +3,7 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 
 import User from "../models/User";
-
-const router = Router();
+import { AuthRequest } from "../middleware/verifyToken";
 
 function signToken(payload: {
   _id: string;
@@ -17,7 +16,7 @@ function signToken(payload: {
 }
 
 // Google sign in controller
-const upsertUser = async (req: Request, res: Response) => {
+export const upsertUser = async (req: Request, res: Response) => {
   try {
     const { name, email, image } = req.body;
 
@@ -46,7 +45,7 @@ const upsertUser = async (req: Request, res: Response) => {
 };
 
 // Local sign up controller
-const signUpUser = async (req: Request, res: Response) => {
+export const signUpUser = async (req: Request, res: Response) => {
   try {
     const { name, email, password } = req.body;
 
@@ -99,11 +98,14 @@ const signUpUser = async (req: Request, res: Response) => {
         plan: user.plan,
       },
     });
-  } catch (error) {}
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Internal server error!" });
+  }
 };
 
 // Local sign in controller
-const loginUser = async (req: Request, res: Response) => {
+export const loginUser = async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
 
@@ -152,5 +154,48 @@ const loginUser = async (req: Request, res: Response) => {
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: "Internal server error!" });
+  }
+};
+
+// Fetch user controller
+export const fetchUser = async (req: Request, res: Response) => {
+  try {
+    const { email } = req.query;
+
+    if (!email) {
+      res.status(400).json({ message: "Email is required" });
+      return;
+    }
+
+    const user = await User.findOne({ email }).select(
+      "_id plan name email image coursesGeneratedThisMonth",
+    );
+
+    if (!user) {
+      res.status(404).json({ message: "User not found" });
+      return;
+    }
+
+    res.status(200).json(user);
+  } catch (error) {
+    console.error("Error fetching user:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+// Fetch user profile
+export const fetchUserProfile = async (req: AuthRequest, res: Response) => {
+  try {
+    const user = await User.findById(req.user?._id).select("-password");
+
+    if (!user) {
+      res.status(404).json({ message: "User not found" });
+      return;
+    }
+
+    res.status(200).json(user);
+  } catch (error) {
+    console.error("Error fetching user:", error);
+    res.status(500).json({ message: "Internal server error" });
   }
 };

@@ -49,6 +49,12 @@ Requirements:
 - The summary should be a concise cheat-sheet a candidate can review before an interview
 - The course title should be specific and interview-focused
  
+CRITICAL RULES for quiz:
+- options must be plain strings with NO letter prefixes. Do NOT write "A) option", "B) option" — just write "option"
+- correctAnswer must be the EXACT full string of the correct option, copied character-for-character from the options array
+- Example of CORRECT format: options: ["Horizontal scaling", "Vertical scaling", "Diagonal scaling"], correctAnswer: "Horizontal scaling"
+- Example of WRONG format: options: ["A) Horizontal scaling", "B) Vertical scaling"], correctAnswer: "A"
+ 
 Return ONLY a valid JSON object with no markdown, no backticks, no explanation. The JSON must follow this exact structure:
  
 {
@@ -63,8 +69,8 @@ Return ONLY a valid JSON object with no markdown, no backticks, no explanation. 
       "quiz": [
         {
           "question": "interview-style question",
-          "options": ["option A", "option B", "option C", "option D"],
-          "correctAnswer": "option A"
+          "options": ["First option", "Second option", "Third option", "Fourth option"],
+          "correctAnswer": "First option"
         }
       ]
     }

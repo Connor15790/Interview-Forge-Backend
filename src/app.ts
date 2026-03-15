@@ -4,6 +4,7 @@ import cors from "cors";
 import authRoutes from "./routes/auth.routes";
 import courseRoutes from "./routes/course.routes";
 import enrollmentRoutes from "./routes/enroll.routes";
+import generateRoutes from "./routes/generate.routes";
 
 const app = express();
 
@@ -13,6 +14,7 @@ app.use(express.json());
 app.use("/api/auth", authRoutes);
 app.use("/api/course", courseRoutes);
 app.use("/api/enrollment", enrollmentRoutes);
+app.use("/api/generate", generateRoutes);
 
 app.get("/", (_req, res) => {
   res.json({

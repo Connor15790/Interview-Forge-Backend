@@ -1,10 +1,13 @@
 import { Response } from "express";
 import mongoose from "mongoose";
 
-import { verifyToken, AuthRequest } from "../middleware/verifyToken";
+import { AuthRequest } from "../middleware/verifyToken";
+
+import { sendCertificateEmail } from "../utils/sendcertificate.service";
 
 import Enrollment from "../models/Enrollment";
 import Course from "../models/Course";
+import User from "../models/User";
 
 // Enroll user in a course
 export const enrollUser = async (req: AuthRequest, res: Response) => {
@@ -91,9 +94,20 @@ export const completeLesson = async (req: AuthRequest, res: Response) => {
             await Enrollment.findByIdAndUpdate(enrollment._id, {
                 completedAt: new Date(),
             });
+
+            const user = await User.findById(userId);
+            if (user) {
+                await sendCertificateEmail({
+                    toEmail: user.email,
+                    userName: user.name,
+                    courseTitle: course.title,
+                    courseTopic: course.topic,
+                    completedAt: new Date(),
+                });
+            }
         }
 
-        res.status(200).json({
+        return res.status(200).json({
             message: "Lesson marked as complete",
             progress: updatedEnrollment?.progress,
             completedLessons,

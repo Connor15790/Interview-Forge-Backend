@@ -27,7 +27,7 @@ export const createCheckout = async (req: AuthRequest, res: Response) => {
             client_reference_id: user._id.toString(),
             line_items: [
                 {
-                    price: process.env.STRIPE_PRICE_ID as string,
+                    price: process.env.PRO_SUBSCRIPTION as string,
                     quantity: 1,
                 },
             ],
@@ -51,6 +51,9 @@ export const verifyPayment = async (req: AuthRequest, res: Response) => {
         }
 
         const session = await stripe.checkout.sessions.retrieve(sessionId);
+        console.log("payment_status:", session.payment_status);
+        console.log("client_reference_id:", session.client_reference_id);
+        console.log("req.user._id:", req.user?._id);
 
         if (session.payment_status !== "paid") {
             return res.status(400).json({ message: "Payment not completed" });

@@ -45,13 +45,13 @@ export const getMyEnrollments = async (req: AuthRequest, res: Response) => {
         const { courseId } = req.params;
         const userId = req.user?._id;
 
-        const enrollments = await Enrollment.find({ userId, courseId });
+        const enrollment = await Enrollment.findOne({ userId, courseId });
 
-        if (!enrollments) {
+        if (!enrollment) {
             return res.status(404).json({ message: "Enrollment not found" });
         }
 
-        return res.status(200).json(enrollments);
+        return res.status(200).json(enrollment);
     } catch (error) {
         console.error("Error fetching enrollment:", error);
         res.status(500).json({ message: "Internal server error" });
